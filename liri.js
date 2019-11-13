@@ -68,7 +68,7 @@ function findSongInfo(songName) {
 }
 
 /* Function makes api request to OMDB website to obtain movie information */
-function findMovies(movieName) {
+function findMovie(movieName) {
     // If no movie name is not provided, set movieName variable to "Mr. Nobody"
     if (movieName == "") movieName = "Mr. Nobody";
     axios.get("http://www.omdbapi.com/?t=" + movieName + "&apikey=trilogy")
@@ -106,6 +106,30 @@ function findMovies(movieName) {
         });
 }
 
+/* Function will take the text inside random.txt and the use it to call the 
+   specific function based on the command variable */
+function doWhatItSays(){
+    fs.readFile("random.txt", "utf8", function (error, data) {
+        // If the code experiences any errors it will log the error to the console.
+        if (error) {
+            return console.log(error);
+        }
+
+        command = data.split(",")[0];
+        // Regular expressions will match A to Z characters as well as white spaces
+        var RegEx = /[a-zA-Z\s]+/;
+        term = data.split(",")[1].match(RegEx).join("");
+
+        if (command === "concert-this") {
+            findConcerts(term);
+        } else if (command === "spotify-this-song") {
+            findSongInfo(term);
+        } else if (command === "movie-this") {
+            findMovie(term);
+        }
+    });
+}
+
 /* Evaluate the command variable to execute the statement associated each case value */
 switch (command) {
     case "concert-this":
@@ -115,7 +139,10 @@ switch (command) {
         findSongInfo(term);
         break;
     case "movie-this":
-        findMovies(term);
+        findMovie(term);
+        break;
+    case "do-what-it-says":
+        doWhatItSays();
         break;
 }
 
