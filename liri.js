@@ -45,10 +45,35 @@ function findConcerts(artist) {
         });
 }
 
+/* Function makes api request to Spotify website to find song's details */
+function findSongInfo(songName) {
+    if (songName) {
+        spotify.search({ type: 'track', query: songName, limit: 5 }, function (err, data) {
+            if (err) {
+                return console.log('Error occurred: ' + err);
+            }
+
+            var results = data.tracks.items;
+            results.forEach(function (item) {
+                console.log("\nArtist's Name: " + item.artists[0].name);
+                console.log("Song's Name: " + item.name);
+                console.log("Song's Preview Link: " + item.external_urls.spotify);
+                console.log("Album's Name: " + item.album.name);
+                console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+            });
+        });
+    } else {
+        console.log("Song details not found");
+    }
+}
+
 /* Evaluate the command variable to execute the statement associated each case value */
 switch (command) {
     case "concert-this":
         findConcerts(term);
+        break;
+    case "spotify-this-song":
+        findSongInfo(term);
         break;
 }
 
