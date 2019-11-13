@@ -47,24 +47,23 @@ function findConcerts(artistName) {
 
 /* Function makes api request to Spotify website to find song's details */
 function findSongInfo(songName) {
-    if (songName) {
-        spotify.search({ type: 'track', query: songName, limit: 5 }, function (err, data) {
-            if (err) {
-                return console.log('Error occurred: ' + err);
-            }
+    //If no song name is provided, default it to "The Sign"
+    if (songName === "") songName = "The Sign";
 
-            var results = data.tracks.items;
-            results.forEach(function (item) {
-                console.log("\nArtist's Name: " + item.artists[0].name);
-                console.log("Song's Name: " + item.name);
-                console.log("Song's Preview Link: " + item.external_urls.spotify);
-                console.log("Album's Name: " + item.album.name);
-                console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-            });
+    spotify.search({ type: 'track', query: songName, limit: 5 }, function (err, data) {
+        if (err) {
+            return console.log('Error occurred: ' + err);
+        }
+
+        var results = data.tracks.items;
+        results.forEach(function (item) {
+            console.log("\nArtist's Name: " + item.artists[0].name);
+            console.log("Song's Name: " + item.name);
+            console.log("Song's Preview Link: " + item.external_urls.spotify);
+            console.log("Album's Name: " + item.album.name);
+            console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         });
-    } else {
-        console.log("Song details not found");
-    }
+    });
 }
 
 /* Function makes api request to OMDB website to obtain movie information */
@@ -108,7 +107,7 @@ function findMovie(movieName) {
 
 /* Function will take the text inside random.txt and the use it to call the 
    specific function based on the command variable */
-function doWhatItSays(){
+function doWhatItSays() {
     fs.readFile("random.txt", "utf8", function (error, data) {
         // If the code experiences any errors it will log the error to the console.
         if (error) {
@@ -130,7 +129,7 @@ function doWhatItSays(){
     });
 }
 
-/* Evaluate the command variable to execute the statement associated each case value */
+/* Evaluate the command variable to execute the statement associated to each case value */
 switch (command) {
     case "concert-this":
         findConcerts(term);
@@ -145,7 +144,5 @@ switch (command) {
         doWhatItSays();
         break;
 }
-
-
 
 
