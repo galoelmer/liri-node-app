@@ -14,34 +14,22 @@ var term = process.argv.slice(3).join(" ");
 function findConcerts(artistName) {
     axios.get("https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp")
         .then(function (response) {
-            if (response.data.length) {
+            // Check if response is an array and array contains any values
+            if (Array.isArray(response.data) && response.data.length) {
+                var textInfo = "";
+                //Loop through response array containing all concert events
                 response.data.forEach(function (event) {
-                    console.log("\nVenue's Name: ", event.venue.name);
-                    console.log("Venue's Location: ", event.venue.city + ", " + (event.venue.region || event.venue.country));
                     var date = moment(event.datetime);
-                    console.log("Event's Date: ", date.format("MM/DD/YYYY"));
-                    console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                    textInfo += `\nVenue's Name: ${event.venue.name}\nVenue's Location: ${event.venue.city}, ${event.venue.region || event.venue.country}\nEvent's Date: ${date.format("MM/DD/YYYY")}\n${'▬'.repeat(35)}`;
                 });
+                console.log(textInfo);
+                appendTextToFile("\n\n>>>>> " + artistName.toUpperCase() + " CONCERTS <<<<<\n" + textInfo);
             } else {
                 console.log("No Upcoming Events");
             }
         })
         .catch(function (error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            console.log(error.config);
+            console.log(error.response.data.message);
         });
 }
 
@@ -53,16 +41,17 @@ function findSongInfo(songName) {
     spotify.search({ type: 'track', query: songName, limit: 5 }, function (err, data) {
         if (err) {
             return console.log('Error occurred: ' + err);
+        } else if (data.tracks.items.length) {
+            var results = data.tracks.items;
+            var textInfo = "";
+            results.forEach(function (item) {
+                textInfo += `\nArtist's Name: ${item.artists[0].name}\nSong's Name: ${item.name} \nSong's Preview Link: ${item.external_urls.spotify}\nAlbum's Name: ${item.album.name}\n\n${'▬'.repeat(35)}\n`;
+            });
+            console.log(textInfo);
+            appendTextToFile("\n\n>>>>> SPOTIFY SEARCH LOG ON: " + songName.toUpperCase() + " <<<<<\n" + textInfo);
+        } else {
+            console.log("Song not found");
         }
-
-        var results = data.tracks.items;
-        results.forEach(function (item) {
-            console.log("\nArtist's Name: " + item.artists[0].name);
-            console.log("Song's Name: " + item.name);
-            console.log("Song's Preview Link: " + item.external_urls.spotify);
-            console.log("Album's Name: " + item.album.name);
-            console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-        });
     });
 }
 
@@ -72,36 +61,18 @@ function findMovie(movieName) {
     if (movieName == "") movieName = "Mr. Nobody";
     axios.get("http://www.omdbapi.com/?t=" + movieName + "&apikey=trilogy")
         .then(function (response) {
+            console.log(response);
+            var textInfo = "";
             // Check if response return movie info
             if (response.data.Response === "True") {
-                console.log("\nMovie Title: ", response.data.Title);
-                console.log("Year: ", response.data.Year);
-                console.log("IMDB Rating: ", response.data.Ratings[0].Value);
-                console.log("Rotten Tomatoes Rating: ", response.data.Ratings[1].Value);
-                console.log("Country: ", response.data.Country);
-                console.log("Language: ", response.data.Language);
-                console.log("Movie Plot: ", response.data.Plot);
-                console.log("Actors: ", response.data.Actors);
-                console.log("\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                textInfo += `\nMovie Title: ${response.data.Title}\nYear: ${response.data.Year}\nIMDB Rating: ${response.data.Ratings[0].Value}\nRotten Tomatoes Rating: ${response.data.Ratings[1].Value}\nCountry: ${response.data.Country}\nLanguage: ${response.data.Language}\nMovie Plot: ${response.data.Plot}\nActors: ${response.data.Actors}\n\n${'▬'.repeat(40)}`;
+                console.log(textInfo);
+                appendTextToFile("\n\n>>>>> MOVIE: " + movieName.toUpperCase() + " <<<<<\n" + textInfo);
             } else {
                 console.log(response.data.Error);
             }
         }).catch(function (error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
-                console.log(error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log("Error", error.message);
-            }
-            console.log(error.config);
+           console.log(error);
         });
 }
 
@@ -117,7 +88,7 @@ function doWhatItSays() {
         command = data.split(",")[0];
         // Regular expressions will match A to Z characters as well as white spaces
         var RegEx = /[a-zA-Z\s]+/;
-        term = data.split(",")[1].match(RegEx).join("");
+        term = data.split(",")[1].trim().match(RegEx).join("");
 
         if (command === "concert-this") {
             findConcerts(term);
@@ -126,6 +97,12 @@ function doWhatItSays() {
         } else if (command === "movie-this") {
             findMovie(term);
         }
+    });
+}
+
+function appendTextToFile(text) {
+    fs.appendFile("log.txt", text, function (err) {
+        if (err) console.log(err);
     });
 }
 
