@@ -61,7 +61,6 @@ function findMovie(movieName) {
     if (movieName == "") movieName = "Mr. Nobody";
     axios.get("http://www.omdbapi.com/?t=" + movieName + "&apikey=trilogy")
         .then(function (response) {
-            console.log(response);
             var textInfo = "";
             // Check if response return movie info
             if (response.data.Response === "True") {
@@ -72,7 +71,7 @@ function findMovie(movieName) {
                 console.log(response.data.Error);
             }
         }).catch(function (error) {
-           console.log(error);
+            console.log(error);
         });
 }
 
@@ -121,5 +120,3 @@ switch (command) {
         doWhatItSays();
         break;
 }
-
-
